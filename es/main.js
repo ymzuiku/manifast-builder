@@ -12,9 +12,11 @@ const argv = process.argv.splice(2);
 const startTime = Date.now();
 const params = {
     files: 'js|css|jpg|png|jpge',
+    md5Length: 7,
     dir: null,
     out: null,
     html: null,
+    sort: null,
     package: null,
 };
 if (argv[0] === 'create-react-app') {
@@ -27,7 +29,7 @@ for (let i = 0; i < argv.length; i++) {
     const key = argv[i].replace('--', '');
     const value = argv[i + 1];
     if (params[key] !== undefined) {
-        params[key] = value;
+        params[key] = Number.isNaN(Number(value)) ? value : Number(value);
     }
 }
 const start = () => {
@@ -35,12 +37,16 @@ const start = () => {
     const packageJSON = params.package && JSON.parse(fs.readFileSync(pwd(params.package)));
     if (argv[0] === '--helper') {
         console.log(' ');
-        console.log('Please input like:');
-        console.log('precache-manifest-builder --dir dist --out precache_manifast.json --html pbulic/index.html --package package.json');
-        console.log('If project is make by create-react-app');
-        console.log('precache-manifest-builder create-react-app');
+        console.log('[1] Please input like:');
+        console.log('manifest-builder --dir dist --out precache_manifast.json --html build/index.html --package package.json');
+        console.log(' ');
+        console.log('[2] If project is make by create-react-app');
+        console.log('manifest-builder create-react-app');
         console.log('--- is equal:');
-        console.log('precache-manifest-builder --dir build --out build/precache_manifast.json --html pbulic/index.html --package package.json');
+        console.log('manifest-builder --dir build --out build/precache_manifast.json --html build/index.html --package package.json');
+        console.log(' ');
+        console.log('[3] Input style is "manifest-builder --key value", all params:');
+        console.log(JSON.stringify(params));
         console.log(' ');
         return;
     }
@@ -71,7 +77,7 @@ const start = () => {
                 else if (stat.isFile() && reg.test(file)) {
                     const fileString = fs.readFileSync(filePath);
                     manifast.push({
-                        r: md5(fileString),
+                        r: md5(fileString, params.md5Length),
                         u: filePath.replace(pwd(params.dir), ''),
                     });
                 }
@@ -79,7 +85,7 @@ const start = () => {
         });
     };
     loadBuild(pwd(params.dir));
-    fs.writeFileSync(pwd(params.out), JSON.stringify(Object.assign({}, (packageJSON && { version: packageJSON.version }), { reversion: md5(JSON.stringify(manifast)), manifast })), { encoding: 'utf8' });
+    fs.writeFileSync(pwd(params.out), JSON.stringify(Object.assign({}, (packageJSON && { version: packageJSON.version }), { reversion: md5(JSON.stringify(manifast), params.md5Length), manifast })), { encoding: 'utf8' });
     console.log(`Done in ${(Date.now() - startTime) / 1000}s`);
 };
 start();

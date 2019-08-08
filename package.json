@@ -5,7 +5,8 @@
   "author": "",
   "private": true,
   "scripts": {
-    "build": "rm -rf es && PROD=true tsc -p tsconfig.build.json && mv dist es && mv es_package.json .npmignore es && mv es/es_package.json es/package.json",
+    "copy": "mv dist es && cp es_package.json .npmignore es && mv es/es_package.json es/package.json",
+    "build": "PROD=true tsc -p tsconfig.build.json && npm run copy",
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "ts-node -r tsconfig-paths/register src/main.ts",
     "start:dev": "concurrently --handle-input \"wait-on dist/main.js && nodemon\" \"tsc -w -p tsconfig.build.json\" ",

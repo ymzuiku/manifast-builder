@@ -1,0 +1,12 @@
+{
+  "name": "manifast-builder",
+  "version": "0.0.1",
+  "description": "manifest.json builder",
+  "author": "pillar",
+  "dependencies": {
+    "fs-extra": "^8.1.0"
+  },
+  "bin": {
+    "manifest-builder": "es/main.js"
+  }
+}

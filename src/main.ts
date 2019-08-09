@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { createHash } from 'crypto';
 import * as fs from 'fs-extra';
 import { resolve } from 'path';

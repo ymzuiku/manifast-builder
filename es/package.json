@@ -1,10 +1,17 @@
 {
-  "name": "manifast-builder",
-  "version": "0.0.3",
+  "name": "manifest-builder",
+  "version": "0.0.6",
   "description": "manifest.json builder",
   "author": "pillar",
   "dependencies": {
-    "fs-extra": "^8.1.0"
+    "@types/fs-extra": "^8.0.0",
+    "@types/puppeteer": "^1.19.0",
+    "fastify": "^2.7.1",
+    "fastify-static": "^2.5.0",
+    "fs-extra": "^8.1.0",
+    "puppeteer": "^1.19.0",
+    "rxjs": "^6.5.2",
+    "server": "^1.0.19"
   },
   "repository": {
     "type": "git",

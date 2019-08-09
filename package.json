@@ -5,7 +5,7 @@
   "author": "",
   "private": true,
   "scripts": {
-    "copy": "rm -rf es || echo '' && mv dist es && cp -rf src/package.json .npmignore README.md ./es/",
+    "copy": "rm -rf es || echo '' && mv dist es && cp -rf src/package.json src/manifest-builder.js .npmignore README.md ./es/",
     "build": "PROD=true tsc -p tsconfig.build.json && npm run copy",
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "ts-node -r tsconfig-paths/register src/main.ts",

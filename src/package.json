@@ -1,6 +1,6 @@
 {
   "name": "manifast-builder",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "manifest.json builder",
   "author": "pillar",
   "dependencies": {

@@ -8,10 +8,11 @@
 **/.pnp.js
 **/tmp
 **/react-app-env.d.ts
+**/test_dist
 
 # testing
 **/coverage
-
+**/_chromeCache
 # production
 **/*.js.map
 **/build

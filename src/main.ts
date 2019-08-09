@@ -1,100 +1,101 @@
 import { createHash } from 'crypto';
-import * as fs from  'fs-extra';
-import {resolve} from 'path';
+import * as fs from 'fs-extra';
+import { resolve } from 'path';
+import * as puppeteer from 'puppeteer';
 
-const md5 = (data:string, slice=7)=>{
-  const str = createHash('md5').update(data).digest('hex');
+import { argv, bin, md5, pwd } from './bin';
+import { puppeteerPages } from './usePuppeteer';
 
-  return str.slice(str.length-slice+1, str.length-1);
-};
+// tslint:disable no-console
 
-const pwd = (...args:string[]) => resolve(process.cwd(), ...args);
-const argv = process.argv.splice(2);
-const startTime = Date.now();
-
-const params = {
+const defParams = {
+  config: 'manifest-builder.js',
+  // 列入资源的类型
   files: 'js|css|jpg|png|jpge',
+  // md5的长度
   md5Length: 7,
+  // 是否输出文件尺寸
+  useSize: false,
+  // 检索的文件夹
   dir: null,
+  // 输出的文件路径
   out: null,
-  html: null,
-  sort: null,
-  package: null,
+  // 输入URL列表，会按序使用无头浏览器，自动爬取首URL中请求的资源，根据请求顺序排序
+  puppeteerUrls: [],
+  // 操作page，进行交互
+  puppeteerDoing: (
+    url: string,
+    page: puppeteer.Page,
+    next: any,
+    fetchList: string[],
+  ) => {
+    //使用 page 对象操作页面，直到运行 next
+  },
+  // 获取 package.json 中的版本号
+  package: 'package.json',
+  // 处理 reduce 的路径
+  reduce: manifest => {
+    return manifest;
+  },
 };
 
-if (argv[0] === 'create-react-app') {
-  params.dir = 'build';
-  params.out = 'build/precache_manifast.json';
-  params.html = 'build/index.html';
-  params.package = 'package.json';
-}
-
-for (let i = 0; i < argv.length; i++) {
-  const key = argv[i].replace('--', '');
-  const value = argv[i+1];
-  if (params[key] !== undefined) {
-    params[key] = Number.isNaN(Number(value)) ? value : Number(value);
-  }
-}
-
-const start = ()=>{
-  const selfPackageJSON = JSON.parse(fs.readFileSync(resolve(__dirname, '../package.json')));
-  const packageJSON = params.package && JSON.parse(fs.readFileSync(pwd(params.package)));
-
-
-  if (argv[0] === '--helper') {
-    console.log(' ');
-    console.log('[1] Please input like:');
-    console.log('manifest-builder --dir dist --out precache_manifast.json --html build/index.html --package package.json');
-    console.log(' ');
-    console.log('[2] If project is make by create-react-app');
-    console.log('manifest-builder create-react-app');
-    console.log('--- is equal:');
-    console.log('manifest-builder --dir build --out build/precache_manifast.json --html build/index.html --package package.json');
-    console.log(' ');
-    console.log('[3] Input style is "manifest-builder --key value", all params:');
-    console.log(JSON.stringify(params));
-    console.log(' ');
-
-    return;
-  }
-  if (argv[0] === '--version') {
-    console.log(' ');
-    console.log(`${selfPackageJSON.name} : v${selfPackageJSON.version}`);
-    console.log(' ');
-
-    return;
-  }
+const logic = async (params = defParams) => {
   if (!params.dir || !params.out) {
     console.log(' ');
     console.log('[ERROE] Please input like:');
-    console.log('precache-manifest-builder --dir dist --out precache_manifast.json --html pbulic/index.html --package package.json');
+    console.log(
+      'precache-manifest-builder --dir dist --out precache_manifast.json --html pbulic/index.html --package package.json',
+    );
     console.log(' ');
 
     return;
   }
 
-  const manifast = [];
+  let manifast = [];
+  let fetchList: string[] = [];
+  const reg = new RegExp(`\\.(${params.files})`);
 
-  const loadBuild = (path:string)=>{
+  if (params.puppeteerUrls && params.puppeteerUrls.length > 0) {
+    fetchList = await puppeteerPages(
+      params.puppeteerUrls,
+      params.puppeteerDoing,
+      reg,
+    );
+  }
+
+  const loadBuild = (path: string) => {
     const dir = fs.readdirSync(path);
 
-    dir.forEach((file:string)=>{
+    dir.forEach((file: string) => {
       const filePath = resolve(path, file);
       const stat = fs.statSync(filePath);
-      const reg = new RegExp(`\\.(${params.files})`);
 
       if (stat) {
         if (stat.isDirectory()) {
           loadBuild(filePath);
         } else if (stat.isFile() && reg.test(file)) {
-          const fileString = fs.readFileSync(filePath);
+          const fileString = fs.readFileSync(filePath).toString();
 
-          manifast.push({
+          const item = {
             r: md5(fileString, params.md5Length),
             // size: fileString.length,
             u: filePath.replace(pwd(params.dir), ''),
-          });
+          };
+          if (fetchList.length > 0) {
+            let isMetch = false;
+            for (let i = fetchList.length - 1; i >= 0; i--) {
+              if (fetchList[i].indexOf(file) > -1) {
+                isMetch = true;
+              }
+            }
+            if (isMetch) {
+              manifast = [item, ...manifast];
+            } else {
+              manifast.push(item);
+            }
+          } else {
+            manifast.push(item);
+          }
         }
       }
     });
@@ -102,13 +103,23 @@ const start = ()=>{
 
   loadBuild(pwd(params.dir));
 
-  fs.writeFileSync(pwd(params.out), JSON.stringify({
-    ...(packageJSON && {version: packageJSON.version}),
-    reversion: md5(JSON.stringify(manifast), params.md5Length),
-    manifast,
-  }), {encoding:'utf8'});
+  if (params.reduce) {
+    manifast = params.reduce(manifast);
+  }
 
-  console.log(`Done in ${(Date.now() - startTime)/1000}s`);
+  const packageJSON =
+    params.package &&
+    JSON.parse(fs.readFileSync(pwd(params.package)).toString());
+
+  fs.writeFileSync(
+    pwd(params.out),
+    JSON.stringify({
+      ...(packageJSON && { version: packageJSON.version }),
+      reversion: md5(JSON.stringify(manifast), params.md5Length),
+      manifast,
+    }),
+    { encoding: 'utf8' },
+  );
 };
 
-start();
+bin(defParams, logic).then();

@@ -5,7 +5,7 @@
   "author": "",
   "private": true,
   "scripts": {
-    "copy": "rm -rf es || echo '' && mv dist es && cp es_package.json .npmignore ./es/ && mv es/es_package.json es/package.json",
+    "copy": "rm -rf es || echo '' && mv dist es && cp src/package.json .npmignore ./es/ && mv es/es_package.json es/package.json",
     "build": "PROD=true tsc -p tsconfig.build.json && npm run copy",
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "ts-node -r tsconfig-paths/register src/main.ts",
@@ -23,7 +23,11 @@
     "lint-ci": "lint-staged"
   },
   "dependencies": {
-    "fs-extra": "^8.1.0"
+    "@types/fs-extra": "^8.0.0",
+    "@types/puppeteer": "^1.19.0",
+    "fs-extra": "^8.1.0",
+    "puppeteer": "^1.19.0",
+    "rxjs": "^6.5.2"
   },
   "devDependencies": {
     "@types/express": "^4.16.0",

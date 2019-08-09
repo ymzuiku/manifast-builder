@@ -4,11 +4,22 @@ import { resolve } from 'path';
 import * as puppeteer from 'puppeteer';
 
 import { argv, bin, md5, pwd } from './bin';
-import { puppeteerPages } from './usePuppeteer';
+import { usePuppeteer } from './usePuppeteer';
+import { useServer } from './useServer';
 
 // tslint:disable no-console
 
+const sleep = (ms: number) => {
+  return new Promise(res => {
+    setTimeout(() => {
+      res();
+    }, ms);
+  });
+};
+
 const defParams = {
+  // 等待 fastify 启动
+  waitServierTime: 2000,
   config: 'manifest-builder.js',
   // 列入资源的类型
   files: 'js|css|jpg|png|jpge',
@@ -16,12 +27,16 @@ const defParams = {
   md5Length: 7,
   // 是否输出文件尺寸
   useSize: false,
+  // 静态服务的端口
+  port: 14512,
   // 检索的文件夹
   dir: null,
   // 输出的文件路径
   out: null,
   // 输入URL列表，会按序使用无头浏览器，自动爬取首URL中请求的资源，根据请求顺序排序
   puppeteerUrls: [],
+  // puppeteer的代理配置
+  puppeteerProxys: undefined,
   // 操作page，进行交互
   puppeteerDoing: (
     url: string,
@@ -56,10 +71,16 @@ const logic = async (params = defParams) => {
   const reg = new RegExp(`\\.(${params.files})`);
 
   if (params.puppeteerUrls && params.puppeteerUrls.length > 0) {
-    fetchList = await puppeteerPages(
+    await useServer(params.port, resolve(params.dir));
+    console.log('Runing Static Server...');
+    // 等待服务端启动
+    await sleep(params.waitServierTime);
+    console.log('Runing Puppeteer...');
+    fetchList = await usePuppeteer(
       params.puppeteerUrls,
       params.puppeteerDoing,
       reg,
+      params.puppeteerProxys,
     );
   }
 
@@ -85,6 +106,7 @@ const logic = async (params = defParams) => {
             let isMetch = false;
             for (let i = fetchList.length - 1; i >= 0; i--) {
               if (fetchList[i].indexOf(file) > -1) {
+                console.log(file);
                 isMetch = true;
               }
             }

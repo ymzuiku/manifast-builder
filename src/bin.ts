@@ -76,4 +76,6 @@ export const bin = async <S>(defParams: S, logic: any) => {
   await logic(params);
 
   console.log(`Done in ${(Date.now() - startTime) / 1000}s`);
+
+  process.exit(0);
 };

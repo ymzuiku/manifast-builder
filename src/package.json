@@ -1,12 +1,16 @@
 {
   "name": "manifast-builder",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "manifest.json builder",
   "author": "pillar",
   "dependencies": {
     "fs-extra": "^8.1.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ymzuiku/manifast-builder"
+  },
   "bin": {
-    "manifest-builder": "es/main.js"
+    "manifest-builder": "main.js"
   }
 }

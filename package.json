@@ -1,11 +1,11 @@
 {
   "name": "manifast-builder",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "",
   "author": "",
   "private": true,
   "scripts": {
-    "copy": "rm -rf es || echo '' && mv dist es && cp src/package.json .npmignore ./es/ && mv es/es_package.json es/package.json",
+    "copy": "rm -rf es || echo '' && mv dist es && cp -rf src/package.json .npmignore README.md ./es/",
     "build": "PROD=true tsc -p tsconfig.build.json && npm run copy",
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "ts-node -r tsconfig-paths/register src/main.ts",

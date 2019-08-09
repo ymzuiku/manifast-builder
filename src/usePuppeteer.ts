@@ -106,6 +106,7 @@ export const usePuppeteer = async (
             req.continue();
           }
         });
+        // tslint:disable-next-line
         console.log('opening: ', urls[index]);
         await doing(urls[index], page, nextFn, close);
         // page.close();

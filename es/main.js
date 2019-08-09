@@ -1,61 +1,44 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const crypto_1 = require("crypto");
 const fs = require("fs-extra");
 const path_1 = require("path");
-const md5 = (data, slice = 7) => {
-    const str = crypto_1.createHash('md5').update(data).digest('hex');
-    return str.slice(str.length - slice + 1, str.length - 1);
+const bin_1 = require("./bin");
+const usePuppeteer_1 = require("./usePuppeteer");
+const useServer_1 = require("./useServer");
+const sleep = (ms) => {
+    return new Promise(res => {
+        setTimeout(() => {
+            res();
+        }, ms);
+    });
 };
-const pwd = (...args) => path_1.resolve(process.cwd(), ...args);
-const argv = process.argv.splice(2);
-const startTime = Date.now();
-const params = {
+const defParams = {
+    waitServierTime: 2000,
+    config: 'manifest-builder.js',
     files: 'js|css|jpg|png|jpge',
     md5Length: 7,
+    useSize: false,
+    port: 14512,
     dir: null,
     out: null,
-    html: null,
-    sort: null,
-    package: null,
+    puppeteerUrls: [],
+    puppeteerProxys: undefined,
+    puppeteerDoing: (url, page, next, fetchList) => {
+    },
+    package: 'package.json',
+    reduce: manifest => {
+        return manifest;
+    },
 };
-if (argv[0] === 'create-react-app') {
-    params.dir = 'build';
-    params.out = 'build/precache_manifast.json';
-    params.html = 'build/index.html';
-    params.package = 'package.json';
-}
-for (let i = 0; i < argv.length; i++) {
-    const key = argv[i].replace('--', '');
-    const value = argv[i + 1];
-    if (params[key] !== undefined) {
-        params[key] = Number.isNaN(Number(value)) ? value : Number(value);
-    }
-}
-const start = () => {
-    const selfPackageJSON = JSON.parse(fs.readFileSync(path_1.resolve(__dirname, '../package.json')));
-    const packageJSON = params.package && JSON.parse(fs.readFileSync(pwd(params.package)));
-    if (argv[0] === '--helper') {
-        console.log(' ');
-        console.log('[1] Please input like:');
-        console.log('manifest-builder --dir dist --out precache_manifast.json --html build/index.html --package package.json');
-        console.log(' ');
-        console.log('[2] If project is make by create-react-app');
-        console.log('manifest-builder create-react-app');
-        console.log('--- is equal:');
-        console.log('manifest-builder --dir build --out build/precache_manifast.json --html build/index.html --package package.json');
-        console.log(' ');
-        console.log('[3] Input style is "manifest-builder --key value", all params:');
-        console.log(JSON.stringify(params));
-        console.log(' ');
-        return;
-    }
-    if (argv[0] === '--version') {
-        console.log(' ');
-        console.log(`${selfPackageJSON.name} : v${selfPackageJSON.version}`);
-        console.log(' ');
-        return;
-    }
+const logic = (params = defParams) => __awaiter(this, void 0, void 0, function* () {
     if (!params.dir || !params.out) {
         console.log(' ');
         console.log('[ERROE] Please input like:');
@@ -63,30 +46,60 @@ const start = () => {
         console.log(' ');
         return;
     }
-    const manifast = [];
+    let manifast = [];
+    let fetchList = [];
+    const reg = new RegExp(`\\.(${params.files})`);
+    if (params.puppeteerUrls && params.puppeteerUrls.length > 0) {
+        yield useServer_1.useServer(params.port, path_1.resolve(params.dir));
+        console.log('Runing Static Server...');
+        yield sleep(params.waitServierTime);
+        console.log('Runing Puppeteer...');
+        fetchList = yield usePuppeteer_1.usePuppeteer(params.puppeteerUrls, params.puppeteerDoing, reg, params.puppeteerProxys);
+    }
     const loadBuild = (path) => {
         const dir = fs.readdirSync(path);
         dir.forEach((file) => {
             const filePath = path_1.resolve(path, file);
             const stat = fs.statSync(filePath);
-            const reg = new RegExp(`\\.(${params.files})`);
             if (stat) {
                 if (stat.isDirectory()) {
                     loadBuild(filePath);
                 }
                 else if (stat.isFile() && reg.test(file)) {
-                    const fileString = fs.readFileSync(filePath);
-                    manifast.push({
-                        r: md5(fileString, params.md5Length),
-                        u: filePath.replace(pwd(params.dir), ''),
-                    });
+                    const fileString = fs.readFileSync(filePath).toString();
+                    const item = {
+                        r: bin_1.md5(fileString, params.md5Length),
+                        u: filePath.replace(bin_1.pwd(params.dir), ''),
+                    };
+                    if (fetchList.length > 0) {
+                        let isMetch = false;
+                        for (let i = fetchList.length - 1; i >= 0; i--) {
+                            if (fetchList[i].indexOf(file) > -1) {
+                                console.log(file);
+                                isMetch = true;
+                            }
+                        }
+                        if (isMetch) {
+                            manifast = [item, ...manifast];
+                        }
+                        else {
+                            manifast.push(item);
+                        }
+                    }
+                    else {
+                        manifast.push(item);
+                    }
                 }
             }
         });
     };
-    loadBuild(pwd(params.dir));
-    fs.writeFileSync(pwd(params.out), JSON.stringify(Object.assign({}, (packageJSON && { version: packageJSON.version }), { reversion: md5(JSON.stringify(manifast), params.md5Length), manifast })), { encoding: 'utf8' });
-    console.log(`Done in ${(Date.now() - startTime) / 1000}s`);
-};
-start();
+    loadBuild(bin_1.pwd(params.dir));
+    if (params.reduce) {
+        manifast = params.reduce(manifast);
+    }
+    const packageJSON = params.package &&
+        JSON.parse(fs.readFileSync(bin_1.pwd(params.package)).toString());
+    fs.writeFileSync(bin_1.pwd(params.out), JSON.stringify(Object.assign({}, (packageJSON && { version: packageJSON.version }), { reversion: bin_1.md5(JSON.stringify(manifast), params.md5Length), manifast })), { encoding: 'utf8' });
+});
+bin_1.bin(defParams, logic).then();
 //# sourceMappingURL=main.js.map

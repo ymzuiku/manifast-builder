@@ -31,6 +31,7 @@ const defParams = {
     dir: null,
     out: null,
     fetchListLengthChecker: 0,
+    puppeteerArgs: [],
     onlyPuppeteer: false,
     puppeteerUrls: [],
     puppeteerProxys: undefined,
@@ -59,7 +60,7 @@ const logic = (params = defParams) => __awaiter(this, void 0, void 0, function* 
         console.log('Runing Static Server...');
         yield sleep(params.waitServierTime);
         console.log('Runing Puppeteer...');
-        fetchList = yield usePuppeteer_1.usePuppeteer(params.puppeteerUrls, params.puppeteerDoing, reg, params.puppeteerProxys);
+        fetchList = yield usePuppeteer_1.usePuppeteer(params.puppeteerUrls, params.puppeteerDoing, reg, params.puppeteerProxys, params.puppeteerArgs);
     }
     const loadBuild = (path) => {
         const dir = fs.readdirSync(path);

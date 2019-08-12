@@ -12,7 +12,7 @@ export const pageClick = async (select: string, wait: number) => {
   return target;
 };
 
-export const initPage = async () => {
+export const initPage = async (initArgs: string[]) => {
   if (!brower) {
     brower = await puppeteer.launch({
       userDataDir: '_chromeCache',
@@ -20,12 +20,13 @@ export const initPage = async () => {
       ignoreHTTPSErrors: true,
       args: [
         // 关闭沙箱检测，相信目标站点
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        // --disable-extensions默认情况下会传递标记，并且在此类策略处于活动状态时将无法启动。要解决此问题，请尝试在没有标志的情况下运行
-        '--disable-extensions',
+        // '--no-sandbox',
+        // '--disable-setuid-sandbox',
+        // // --disable-extensions默认情况下会传递标记，并且在此类策略处于活动状态时将无法启动。要解决此问题，请尝试在没有标志的情况下运行
+        // '--disable-extensions',
         // 关闭跨域检测
-        '--disable-web-security',
+        // '--disable-web-security',
+        ...initArgs,
       ],
     });
   }
@@ -60,6 +61,7 @@ export const usePuppeteer = async (
   doing: IDoing,
   reg: RegExp,
   proxys?: IProxy[],
+  initArgs?: string[],
 ): Promise<string[]> => {
   // headless: false 表示打开浏览器，查看过程
   return new Promise(res => {
@@ -80,7 +82,7 @@ export const usePuppeteer = async (
 
     sub.subscribe({
       next: async () => {
-        await initPage();
+        await initPage(initArgs);
 
         const nextFn = index >= urls.length - 1 ? complete : next;
 

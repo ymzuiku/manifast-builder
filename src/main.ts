@@ -37,6 +37,7 @@ const defParams = {
   out: null,
   // 如果无头浏览器碰撞的条目低于某个值，抛出异常
   fetchListLengthChecker: 0,
+  puppeteerArgs: [],
   onlyPuppeteer: false,
   // 输入URL列表，会按序使用无头浏览器，自动爬取首URL中请求的资源，根据请求顺序排序
   puppeteerUrls: [],
@@ -90,6 +91,7 @@ const logic = async (params = defParams) => {
       params.puppeteerDoing,
       reg,
       params.puppeteerProxys,
+      params.puppeteerArgs,
     );
   }
 

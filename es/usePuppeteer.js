@@ -16,17 +16,14 @@ exports.pageClick = (select, wait) => __awaiter(this, void 0, void 0, function* 
     yield exports.page.waitFor(wait);
     return target;
 });
-exports.initPage = () => __awaiter(this, void 0, void 0, function* () {
+exports.initPage = (initArgs) => __awaiter(this, void 0, void 0, function* () {
     if (!exports.brower) {
         exports.brower = yield puppeteer.launch({
             userDataDir: '_chromeCache',
             headless: true,
             ignoreHTTPSErrors: true,
             args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-extensions',
-                '--disable-web-security',
+                ...initArgs,
             ],
         });
     }
@@ -37,7 +34,7 @@ exports.initPage = () => __awaiter(this, void 0, void 0, function* () {
     yield exports.page.setRequestInterception(true);
     yield exports.page.setJavaScriptEnabled(true);
 });
-exports.usePuppeteer = (urls, doing, reg, proxys) => __awaiter(this, void 0, void 0, function* () {
+exports.usePuppeteer = (urls, doing, reg, proxys, initArgs) => __awaiter(this, void 0, void 0, function* () {
     return new Promise(res => {
         const fetchList = [];
         const sub = new rxjs_1.Subject();
@@ -51,7 +48,7 @@ exports.usePuppeteer = (urls, doing, reg, proxys) => __awaiter(this, void 0, voi
         };
         sub.subscribe({
             next: () => __awaiter(this, void 0, void 0, function* () {
-                yield exports.initPage();
+                yield exports.initPage(initArgs);
                 const nextFn = index >= urls.length - 1 ? complete : next;
                 exports.page.on('request', req => {
                     if (req.method() === 'GET') {

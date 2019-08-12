@@ -11,6 +11,6 @@ interface IProxy {
     replace: string;
     url: string;
 }
-declare type IDoing = (url: string, page: puppeteer.Page, next: any, close: any) => any;
+declare type IDoing = (url: string, page: puppeteer.Page, next: any, close: any, fetchList: string[]) => any;
 export declare const usePuppeteer: (urls: string[], doing: IDoing, reg: RegExp, proxys?: IProxy[]) => Promise<string[]>;
 export {};

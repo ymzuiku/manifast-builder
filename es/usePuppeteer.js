@@ -44,7 +44,7 @@ exports.usePuppeteer = (urls, doing, reg, proxys) => __awaiter(this, void 0, voi
         let index = 0;
         const complete = () => sub.complete();
         const next = () => sub.next();
-        const close = () => {
+        const stop = () => {
             exports.page.close();
             exports.page.browser().close();
             process.exit(1);
@@ -86,7 +86,7 @@ exports.usePuppeteer = (urls, doing, reg, proxys) => __awaiter(this, void 0, voi
                     }
                 });
                 console.log('opening: ', urls[index]);
-                yield doing(urls[index], exports.page, nextFn, close);
+                yield doing(urls[index], exports.page, nextFn, stop, fetchList);
                 index += 1;
             }),
             complete: () => {

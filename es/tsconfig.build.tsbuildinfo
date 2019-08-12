@@ -594,8 +594,8 @@
         "signature": "41249bfce2b6ec504f2b83fd6704194277e264b13f1b896550f60dc6f98b36a3"
       },
       "/users/pillar/work/doing/manifest-builder/src/usepuppeteer.ts": {
-        "version": "7a24656c7a23c67e24f3fb5f7fc4fd88110bc93b464090d4ad742fe0d716cd27",
-        "signature": "c140b1a3a208503d99ddc7b7b582cc2d2757c7b2bb29af7cdad82d3187f453c0"
+        "version": "275b6a470a9717f5fc0cdb4c18e8a73e6b78f7101df5be7971159bdfc616c9dc",
+        "signature": "7a1cba4b101943f82f8825b9368fbdaa48dd52e158f3fc3f2604ed8940f44e9d"
       },
       "/users/pillar/work/doing/manifest-builder/node_modules/fastify/fastify.d.ts": {
         "version": "4e06efc96afb8ed9dab8efa5daac0c7446ed0ffe11c4007963fb788239140808",
@@ -610,7 +610,7 @@
         "signature": "d77ef8a06ecea6ba3fe59f99233953f9d0714b9de91475b2d1001f8217b9bdbb"
       },
       "/users/pillar/work/doing/manifest-builder/src/main.ts": {
-        "version": "d5707d408b5170dce6a6a0668e8cc9672ec2e03fc3b108a830f0b1563a0b1178",
+        "version": "e2892bb3d4546a189e5973664498b9b8ff546cff4c699052961f671f687a3518",
         "signature": "43e818adf60173644896298637f47b01d5819b17eda46eaa32d0c7d64724d012"
       },
       "/users/pillar/work/doing/manifest-builder/node_modules/@types/babel-types/index.d.ts": {

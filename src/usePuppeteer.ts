@@ -47,7 +47,13 @@ interface IProxy {
   url: string;
 }
 
-type IDoing = (url: string, page: puppeteer.Page, next: any, close: any) => any;
+type IDoing = (
+  url: string,
+  page: puppeteer.Page,
+  next: any,
+  close: any,
+  fetchList: string[],
+) => any;
 
 export const usePuppeteer = async (
   urls: string[],
@@ -66,7 +72,7 @@ export const usePuppeteer = async (
     const complete = () => sub.complete();
     const next = () => sub.next();
 
-    const close = () => {
+    const stop = () => {
       page.close();
       page.browser().close();
       process.exit(1);
@@ -113,8 +119,7 @@ export const usePuppeteer = async (
         });
         // tslint:disable-next-line
         console.log('opening: ', urls[index]);
-        await doing(urls[index], page, nextFn, close);
-        // page.close();
+        await doing(urls[index], page, nextFn, stop, fetchList);
         index += 1;
       },
       complete: () => {

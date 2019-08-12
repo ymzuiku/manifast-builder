@@ -35,6 +35,8 @@ const defParams = {
   dir: null,
   // 输出的文件路径
   out: null,
+  // 如果无头浏览器碰撞的条目低于某个值，抛出异常
+  fetchListLengthChecker: 0,
   onlyPuppeteer: false,
   // 输入URL列表，会按序使用无头浏览器，自动爬取首URL中请求的资源，根据请求顺序排序
   puppeteerUrls: [],
@@ -45,6 +47,7 @@ const defParams = {
     url: string,
     page: puppeteer.Page,
     next: any,
+    close: any,
     fetchList: string[],
   ) => {
     //使用 page 对象操作页面，直到运行 next
@@ -71,9 +74,12 @@ const logic = async (params = defParams) => {
 
   let manifast = [];
   let fetchList: string[] = [];
+  let isMetchNumber = 0;
+  const isUsePuppeteer =
+    params.puppeteerUrls && params.puppeteerUrls.length > 0;
   const reg = new RegExp(`\\.(${params.files})`);
 
-  if (params.puppeteerUrls && params.puppeteerUrls.length > 0) {
+  if (isUsePuppeteer) {
     await useServer(params.port, resolve(params.dir));
     console.log('Runing Static Server...');
     // 等待服务端启动
@@ -109,6 +115,7 @@ const logic = async (params = defParams) => {
             let isMetch = false;
             for (let i = fetchList.length - 1; i >= 0; i--) {
               if (fetchList[i].indexOf(file) > -1) {
+                isMetchNumber += 1;
                 console.log(file);
                 isMetch = true;
               }
@@ -148,6 +155,13 @@ const logic = async (params = defParams) => {
     }),
     { encoding: 'utf8' },
   );
+
+  if (isUsePuppeteer && isMetchNumber < params.fetchListLengthChecker) {
+    console.log(
+      `[fetchListLengthChecker]: fetchList < ${params.fetchListLengthChecker}, fetchList.length = ${isMetchNumber}`,
+    );
+    process.exit(1);
+  }
 };
 
 bin(defParams, logic).then();

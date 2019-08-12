@@ -14,6 +14,8 @@ module.exports = () => {
     out: 'build/precache-manifest.json',
     // 静态服务的端口
     port: 14512,
+    // 如果无头浏览器碰撞的条目低于某个值，抛出异常
+    fetchListLengthChecker: 10,
     // 是否仅输出无头浏览器捕获的资源
     onlyPuppeteer: false,
     // 输入URL列表，会按序使用无头浏览器，自动爬取首URL中请求的资源，根据请求顺序排序
@@ -38,8 +40,8 @@ module.exports = () => {
         replace: 'http://127.0.0.1:14512',
       },
     ],
-    // 操作page，进行交互, url 为当前访问的url，page 为当前浏览器Page对象，next 表示执行下一个url，close表示遇到异常进行关闭
-    puppeteerDoing: async (url, page, next, close) => {
+    // 操作page，进行交互, url 为当前访问的url，page 为当前浏览器Page对象，next 表示执行下一个url，stop表示遇到异常进行关闭
+    puppeteerDoing: async (url, page, next, stop, fetchList) => {
       await page.setCookie({
         name: 'hello',
         value: 'world',

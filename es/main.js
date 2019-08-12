@@ -30,10 +30,11 @@ const defParams = {
     port: 14512,
     dir: null,
     out: null,
+    fetchListLengthChecker: 0,
     onlyPuppeteer: false,
     puppeteerUrls: [],
     puppeteerProxys: undefined,
-    puppeteerDoing: (url, page, next, fetchList) => {
+    puppeteerDoing: (url, page, next, close, fetchList) => {
     },
     package: 'package.json',
     reduce: manifest => {
@@ -50,8 +51,10 @@ const logic = (params = defParams) => __awaiter(this, void 0, void 0, function* 
     }
     let manifast = [];
     let fetchList = [];
+    let isMetchNumber = 0;
+    const isUsePuppeteer = params.puppeteerUrls && params.puppeteerUrls.length > 0;
     const reg = new RegExp(`\\.(${params.files})`);
-    if (params.puppeteerUrls && params.puppeteerUrls.length > 0) {
+    if (isUsePuppeteer) {
         yield useServer_1.useServer(params.port, path_1.resolve(params.dir));
         console.log('Runing Static Server...');
         yield sleep(params.waitServierTime);
@@ -77,6 +80,7 @@ const logic = (params = defParams) => __awaiter(this, void 0, void 0, function* 
                         let isMetch = false;
                         for (let i = fetchList.length - 1; i >= 0; i--) {
                             if (fetchList[i].indexOf(file) > -1) {
+                                isMetchNumber += 1;
                                 console.log(file);
                                 isMetch = true;
                             }
@@ -104,6 +108,10 @@ const logic = (params = defParams) => __awaiter(this, void 0, void 0, function* 
     const packageJSON = params.package &&
         JSON.parse(fs.readFileSync(bin_1.pwd(params.package)).toString());
     fs.writeFileSync(bin_1.pwd(params.out), JSON.stringify(Object.assign({}, (packageJSON && { version: packageJSON.version }), { reversion: bin_1.md5(JSON.stringify(manifast), params.md5Length), manifast })), { encoding: 'utf8' });
+    if (isUsePuppeteer && isMetchNumber < params.fetchListLengthChecker) {
+        console.log(`[fetchListLengthChecker]: fetchList < ${params.fetchListLengthChecker}, fetchList.length = ${isMetchNumber}`);
+        process.exit(1);
+    }
 });
 bin_1.bin(defParams, logic).then();
 //# sourceMappingURL=main.js.map

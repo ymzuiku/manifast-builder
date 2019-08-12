@@ -17,3 +17,5 @@ $ manifest-builder --config manifest-builder.js
 # or
 $ manifest-builder
 ```
+
+.gitignore 请忽略 chromeCache, 它存储着浏览器的配置

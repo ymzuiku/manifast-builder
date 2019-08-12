@@ -69,7 +69,7 @@ const logic = (params = defParams) => __awaiter(this, void 0, void 0, function* 
                 else if (stat.isFile() && reg.test(file)) {
                     const fileString = fs.readFileSync(filePath).toString();
                     const item = {
-                        r: bin_1.md5(fileString, params.md5Length),
+                        v: bin_1.md5(fileString, params.md5Length),
                         u: filePath.replace(bin_1.pwd(params.dir), ''),
                     };
                     if (fetchList.length > 0) {

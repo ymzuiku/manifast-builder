@@ -100,7 +100,7 @@ const logic = async (params = defParams) => {
           const fileString = fs.readFileSync(filePath).toString();
 
           const item = {
-            r: md5(fileString, params.md5Length),
+            v: md5(fileString, params.md5Length),
             // size: fileString.length,
             u: filePath.replace(pwd(params.dir), ''),
           };

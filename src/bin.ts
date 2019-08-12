@@ -9,7 +9,7 @@ export const md5 = (data: string, slice = 7) => {
     .update(data)
     .digest('hex');
 
-  return str.slice(str.length - slice + 1, str.length - 1);
+  return str.slice(str.length - slice - 1, str.length - 1);
 };
 
 export const pwd = (...args: string[]) => resolve(process.cwd(), ...args);

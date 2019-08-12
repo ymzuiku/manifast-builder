@@ -35,6 +35,7 @@ const defParams = {
   dir: null,
   // 输出的文件路径
   out: null,
+  onlyPuppeteer: false,
   // 输入URL列表，会按序使用无头浏览器，自动爬取首URL中请求的资源，根据请求顺序排序
   puppeteerUrls: [],
   // puppeteer的代理配置
@@ -115,7 +116,10 @@ const logic = async (params = defParams) => {
             if (isMetch) {
               manifast = [item, ...manifast];
             } else {
-              manifast.push(item);
+              // 如果 onlyPuppeteer，那就不输出puppeteer没匹配的对象
+              if (!params.onlyPuppeteer) {
+                manifast.push(item);
+              }
             }
           } else {
             manifast.push(item);

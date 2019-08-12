@@ -30,6 +30,7 @@ const defParams = {
     port: 14512,
     dir: null,
     out: null,
+    onlyPuppeteer: false,
     puppeteerUrls: [],
     puppeteerProxys: undefined,
     puppeteerDoing: (url, page, next, fetchList) => {
@@ -84,7 +85,9 @@ const logic = (params = defParams) => __awaiter(this, void 0, void 0, function* 
                             manifast = [item, ...manifast];
                         }
                         else {
-                            manifast.push(item);
+                            if (!params.onlyPuppeteer) {
+                                manifast.push(item);
+                            }
                         }
                     }
                     else {

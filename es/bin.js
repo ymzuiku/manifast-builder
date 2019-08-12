@@ -15,7 +15,7 @@ exports.md5 = (data, slice = 7) => {
     const str = crypto_1.createHash('md5')
         .update(data)
         .digest('hex');
-    return str.slice(str.length - slice + 1, str.length - 1);
+    return str.slice(str.length - slice - 1, str.length - 1);
 };
 exports.pwd = (...args) => path_1.resolve(process.cwd(), ...args);
 exports.argv = process.argv.splice(2);

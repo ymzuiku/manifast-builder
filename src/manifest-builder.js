@@ -14,6 +14,8 @@ module.exports = () => {
     out: 'build/precache-manifest.json',
     // 静态服务的端口
     port: 14512,
+    // 是否仅输出无头浏览器捕获的资源
+    onlyPuppeteer: false,
     // 输入URL列表，会按序使用无头浏览器，自动爬取首URL中请求的资源，根据请求顺序排序
     puppeteerUrls: [
       'http://127.0.0.1:14512/#/home',

@@ -23,6 +23,9 @@ exports.initPage = () => __awaiter(this, void 0, void 0, function* () {
             headless: true,
             ignoreHTTPSErrors: true,
             args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-extensions',
                 '--disable-web-security',
             ],
         });

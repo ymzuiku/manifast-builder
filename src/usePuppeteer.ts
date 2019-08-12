@@ -19,6 +19,11 @@ export const initPage = async () => {
       headless: true,
       ignoreHTTPSErrors: true,
       args: [
+        // 关闭沙箱检测，相信目标站点
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        // --disable-extensions默认情况下会传递标记，并且在此类策略处于活动状态时将无法启动。要解决此问题，请尝试在没有标志的情况下运行
+        '--disable-extensions',
         // 关闭跨域检测
         '--disable-web-security',
       ],

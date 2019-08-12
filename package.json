@@ -5,7 +5,7 @@
   "author": "",
   "private": true,
   "scripts": {
-    "copy": "rm -rf es || echo '' && mv dist es && cp -rf src/package.json src/manifest-builder.js .npmignore README.md ./es/",
+    "copy": "cpr dist es -d && cpr src/package.json es/package.json -o && cpr src/manifest-builder.js es/manifest-builder.js -o && cpr .npmignore es/.npmignore -o && cpr README.md es/README.md && rimraf es/tsconfig.build.tsbuildinfo",
     "build": "PROD=true tsc -p tsconfig.build.json && npm run copy",
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "ts-node -r tsconfig-paths/register src/main.ts",
@@ -37,6 +37,7 @@
     "@types/jest": "^23.3.13",
     "@types/node": "^10.12.18",
     "concurrently": "^4.1.0",
+    "cpr": "^3.0.1",
     "husky": "^2.4.1",
     "jest": "^23.6.0",
     "lint-staged": "^8.2.1",
